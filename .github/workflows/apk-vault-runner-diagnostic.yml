@@ -1,0 +1,11 @@
+name: APK Vault runner diagnostic
+on:
+  push:
+    branches: [build/apk-vault-2026-10-25]
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm runner starts
+        run: echo 'GitHub Actions runner is working'
