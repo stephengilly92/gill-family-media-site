@@ -1,0 +1,43 @@
+name: EarBoost3 Android APK
+on:
+  push:
+    branches:
+      - earboost3-android17-apk-build
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install platform and build tools
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Build signed debug APK
+        working-directory: earboost3
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Inspect compiled APK
+        run: |
+          set -e
+          APK=earboost3/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          unzip -t "$APK"
+          sha256sum "$APK"
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: EarBoost3-Android17-APK
+          path: earboost3/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
